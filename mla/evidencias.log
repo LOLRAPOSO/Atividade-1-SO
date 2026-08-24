@@ -1,0 +1,6 @@
+Script started on 2026-08-23 19:44:40-03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="155" LINES="12"]
+[?2004h]0;root@RAPOSO-PC: /mnt/c/Users/RENATA/OneDrive/Documentos/Workflow/Atividade-1-SO/mlaroot@RAPOSO-PC:/mnt/c/Users/RENATA/OneDrive/Documentos/Workflow/Atividade-1-SO/mla# teste
+[?2004lCommand 'teste' not found, did you mean:
+  command 'test' from deb coreutils (9.4-2ubuntu2)
+Try: apt install <deb name>
+[?2004h]0;root@RAPOSO-PC: /mnt/c/Users/RENATA/OneDrive/Documentos/Workflow/Ativid
