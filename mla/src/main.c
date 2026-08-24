@@ -6,9 +6,11 @@
 
 int main(argc, char *argv[]){
     FILE *commands = NULL;
-    char line[MAX_LINHAS];
+    char linhas[MAX_LINHAS];
 
     if (argc > 2){
         printf("\nUltrapassou quantidade de argumentos.\n");
     }
+    
+    
 }
