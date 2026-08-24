@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <stdbool.h>
 
 #define MAX 256
 #define MAX_COMMANDS 1024
@@ -28,11 +29,14 @@ Tarefa* registrar_tarefa(char *nome, char *argv[], int argc, char *input, char *
     Tarefa *nova = (Tarefa*)malloc(sizeof(Tarefa));
     strncpy(nova->nome, nome, TAM_NOME);
     for(int i = 0; i < argc; i++){
-        nova->argv[i] = argv[i];
+        nova->argv[i] = strdup(argv[i]);
     }
+    nova->argv[argc] = NULL;
     nova->argc = argc;
-    strncpy(nova->input, input, MAX);
-    strncpy(nova->output, output, MAX);
+    strncpy(nova->input, input, MAX - 1);
+    nova->input[MAX - 1] = '\0';
+    strncpy(nova->output, output, MAX - 1);
+    nova->output[MAX - 1] = '\0';
     nova->next = NULL;
     return nova;    
 }
@@ -50,6 +54,42 @@ void guardar_tarefa(Lista* p, char *nome, char *argv[], int argc, char *input, c
 }
 //////////////////GUARDAR TAREFA////////////////////////
 
+Tarefa* achar_tarefa(Lista* p, char* nome){
+    Tarefa* atual = p->inic;
+
+    while(atual != NULL){
+        if(strcmp(atual->nome, nome) == 0){
+            return atual;
+        }
+        atual = atual->next;
+    }
+    return NULL;
+}
+/////////////////CADASTRAR///////////////////////////////
+void cmd_task(Lista *p, char *token[], int tok){ 
+    
+    if(tok < 3){
+        printf("Erro: uso correto e' task <nome> <programa> [argumentos...]\n");
+        return;
+    }
+
+    char *nome = token[1];
+
+    if(achar_tarefa(p, nome) != NULL){
+        printf("Erro: tarefa '%s' ja foi cadastrada.\n", nome);
+        return;
+    }
+    
+    char *exec_argv[64];
+    int exec_argc = 0;
+    for(int i = 2; i < tok; i++){
+        exec_argv[exec_argc++] = token[i];
+    }
+
+    guardar_tarefa(p, nome, exec_argv, exec_argc, "", "");
+    printf("Tarefa '%s' cadastrada.\n", nome);
+}
+/////////////////CADASTRAR///////////////////////////////
 int tokenizar(char *linha, char *tokens[], int max_tokens) {
     int count = 0;
     char *p = linha;
@@ -79,6 +119,8 @@ int tokenizar(char *linha, char *tokens[], int max_tokens) {
 }
 
 int main(int argc, char *argv[]){ //////////////MAIN//////////////
+    Lista tasks = NULL;
+
     FILE *commands = NULL;
     char linhas[MAX_COMMANDS];
     char *token[64];
@@ -118,6 +160,10 @@ int main(int argc, char *argv[]){ //////////////MAIN//////////////
         int tok = tokenizar(linhas, token, 64);
         if(strcmp(token[0], "exit") == 0){
             break;
+        }
+
+        if(strcmp(token[0], "task") == 0){
+            cmd_task(&tarefas, token, tok);
         }
         //PARSER (Despachador de outros comandos)
         //(task, run, input, output, append, workdir, start, jobs, wait)
