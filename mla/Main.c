@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/wait.h>
+#include <sys/wait.h>    
 #include <fcntl.h>
 #include <stdbool.h>
 
@@ -43,7 +43,7 @@ Tarefa* registrar_tarefa(char *nome, char *argv[], int argc, char *input, char *
     strncpy(nova->output, output, MAX - 1);
     nova->output[MAX - 1] = '\0';
     nova->next = NULL;
-    
+
     return nova;    
 }
 
