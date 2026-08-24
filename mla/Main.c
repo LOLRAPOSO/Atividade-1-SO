@@ -27,17 +27,23 @@ typedef struct lista{
 //////////////////GUARDAR TAREFA////////////////////////
 Tarefa* registrar_tarefa(char *nome, char *argv[], int argc, char *input, char *output){
     Tarefa *nova = (Tarefa*)malloc(sizeof(Tarefa));
+
     strncpy(nova->nome, nome, TAM_NOME);
+    nova->nome[TAM_NOME - 1] = '\0';
+
     for(int i = 0; i < argc; i++){
         nova->argv[i] = strdup(argv[i]);
     }
     nova->argv[argc] = NULL;
     nova->argc = argc;
+
     strncpy(nova->input, input, MAX - 1);
     nova->input[MAX - 1] = '\0';
+
     strncpy(nova->output, output, MAX - 1);
     nova->output[MAX - 1] = '\0';
     nova->next = NULL;
+    
     return nova;    
 }
 
@@ -119,7 +125,7 @@ int tokenizar(char *linha, char *tokens[], int max_tokens) {
 }
 
 int main(int argc, char *argv[]){ //////////////MAIN//////////////
-    Lista tasks = NULL;
+    Lista tarefas = {NULL}; //POR NÃO SER UM PONTEIRO TEM QUE ADICIONAR ISSO "{}"!!
 
     FILE *commands = NULL;
     char linhas[MAX_COMMANDS];
@@ -158,6 +164,10 @@ int main(int argc, char *argv[]){ //////////////MAIN//////////////
         }
         
         int tok = tokenizar(linhas, token, 64);
+        if(tok == 0){
+            continue;
+        }
+
         if(strcmp(token[0], "exit") == 0){
             break;
         }
@@ -171,4 +181,5 @@ int main(int argc, char *argv[]){ //////////////MAIN//////////////
     if(commands != stdin){
         fclose(commands);
     }
+    return 0;
 }
