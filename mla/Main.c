@@ -9,7 +9,6 @@
 #define MAX 256
 #define MAX_COMMANDS 1024
 #define TAM_NOME 64
-#define MAX_TAREFAS 100
 
 typedef struct tarefa { 
     char nome[TAM_NOME];
@@ -107,30 +106,6 @@ int executar_tarefa(Tarefa *t){
         return -1;
     }
 }
-/////////////////TAREFAS///////////////////////////////
-void cmd_task(Lista *p, char *token[], int tok){
-    
-    if(tok < 3){
-        printf("Erro: uso correto e' task <nome> <programa> [argumentos...]\n");
-        return;
-    }
-
-    char *nome = token[1];
-
-    if(achar_tarefa(p, nome) != NULL){
-        printf("Erro: tarefa '%s' ja foi cadastrada.\n", nome);
-        return;
-    }
-    
-    char *exec_argv[64];
-    int exec_argc = 0;
-    for(int i = 2; i < tok; i++){
-        exec_argv[exec_argc++] = token[i];
-    }
-
-    guardar_tarefa(p, nome, exec_argv, exec_argc, "", "");
-    printf("Tarefa '%s' cadastrada.\n", nome);
-}
 
 void run_sequential(Lista *p, char *token[], int tok){
 
@@ -206,6 +181,55 @@ void run_parallel(Lista *p, char *token[], int tok){
     }
 }
 /////////////////TAREFAS///////////////////////////////
+void cmd_run(Lista *p, char *token[], int tok){
+    if(tok < 2){
+        printf("Erro: uso incorreto\n");
+        return;
+    }
+
+    if(strcmp(token[1], "sequential") == 0){
+        run_sequential(p, token, tok);
+    } else if(strcmp(token[1], "parallel") == 0){
+        run_parallel(p, token, tok);
+    } else {
+        // run <nome> direto (caso simples que ja tinhamos)
+        Tarefa *t = achar_tarefa(p, token[1]);
+
+        if(t == NULL){
+            printf("Erro: tarefa '%s' nao encontrada.\n", token[1]);
+            return;
+        }
+
+        executar_tarefa(t);
+    }
+}
+
+void cmd_task(Lista *p, char *token[], int tok){
+    
+    if(tok < 3){
+        printf("Erro: uso correto e' task <nome> <programa> [argumentos...]\n");
+        return;
+    }
+
+    char *nome = token[1];
+
+    if(achar_tarefa(p, nome) != NULL){
+        printf("Erro: tarefa '%s' ja foi cadastrada.\n", nome);
+        return;
+    }
+    
+    char *exec_argv[64];
+    int exec_argc = 0;
+    for(int i = 2; i < tok; i++){
+        exec_argv[exec_argc++] = token[i];
+    }
+
+    guardar_tarefa(p, nome, exec_argv, exec_argc, "", "");
+    printf("Tarefa '%s' cadastrada.\n", nome);
+}
+
+
+/////////////////TAREFAS///////////////////////////////
 int tokenizar(char *linha, char *tokens[], int max_tokens) {
     int count = 0;
     char *p = linha;
@@ -233,26 +257,6 @@ int tokenizar(char *linha, char *tokens[], int max_tokens) {
     }
     return count;
 }
-
-void cmd_run(Lista *p, char *token[], int tok){
-    // processflow> run <nome>
-    // (sequential/parallel/pipe entram depois, quando token[1] for essas palavras)
-
-    if(tok < 2){
-        printf("Erro: uso correto e' run <nome>\n");
-        return;
-    }
-
-    Tarefa *t = achar_tarefa(p, token[1]);
-
-    if(t == NULL){
-        printf("Erro: tarefa '%s' nao encontrada.\n", token[1]);
-        return;
-    }
-
-    executar_tarefa(t);
-}
-/////////////////TAREFAS///////////////////////////////
 
 int main(int argc, char *argv[]){ //////////////MAIN//////////////
     Lista tarefas = {NULL}; //POR NÃO SER UM PONTEIRO TEM QUE ADICIONAR ISSO "{}"!!
